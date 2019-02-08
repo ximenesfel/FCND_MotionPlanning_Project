@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="de52b583-485f-43b1-97ba-131b0f28cbbe" name="Default Changelist" comment="" />
+    <list default="true" id="de52b583-485f-43b1-97ba-131b0f28cbbe" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Logs/TLog.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Logs/TLog.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Motion Planning.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Motion Planning.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/motion_planning.py" beforeDir="false" afterPath="$PROJECT_DIR$/motion_planning.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/planning_utils.py" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -13,11 +19,22 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/motion_planning.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-2100">
-              <caret line="25" lean-forward="true" selection-start-line="25" selection-end-line="25" />
+            <state relative-caret-position="298">
+              <caret line="245" column="40" lean-forward="true" selection-start-line="245" selection-start-column="40" selection-end-line="245" selection-end-column="40" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
-                <element signature="e#7389#7616#0" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/planning_utils.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-1116">
+              <caret line="183" column="47" selection-start-line="183" selection-start-column="47" selection-end-line="183" selection-end-column="47" />
+              <folding>
+                <element signature="e#0#21#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -35,8 +52,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$USER_HOME$/miniconda3/envs/fcnd/lib/python3.6/site-packages/udacidrone/frame_utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="150">
-              <caret line="10" column="114" selection-start-line="10" selection-start-column="106" selection-end-line="10" selection-end-column="114" />
+            <state relative-caret-position="315">
+              <caret line="21" lean-forward="true" selection-start-line="21" selection-end-line="33" selection-end-column="14" />
               <folding>
                 <element signature="e#49#67#0" expanded="true" />
               </folding>
@@ -53,12 +70,15 @@
       </list>
     </option>
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/writeup_template.md" />
-        <option value="$PROJECT_DIR$/planning_utils.py" />
         <option value="$PROJECT_DIR$/grid.py" />
+        <option value="$PROJECT_DIR$/planning_utils.py" />
         <option value="$PROJECT_DIR$/motion_planning.py" />
       </list>
     </option>
@@ -69,6 +89,7 @@
     <option name="width" value="1400" />
     <option name="height" value="1000" />
   </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
@@ -153,8 +174,8 @@
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.3297414" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.39978448" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.33045357" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.39956802" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -245,6 +266,16 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$USER_HOME$/miniconda3/envs/fcnd/lib/python3.6/site-packages/udacidrone/frame_utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="315">
+          <caret line="21" lean-forward="true" selection-start-line="21" selection-end-line="33" selection-end-column="14" />
+          <folding>
+            <element signature="e#49#67#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/colliders.csv">
       <provider selected="true" editor-type-id="text-editor">
         <state>
@@ -254,31 +285,20 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/planning_utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30">
-          <caret line="144" lean-forward="true" selection-start-line="144" selection-end-line="146" selection-end-column="71" />
+        <state relative-caret-position="-1116">
+          <caret line="183" column="47" selection-start-line="183" selection-start-column="47" selection-end-line="183" selection-end-column="47" />
           <folding>
             <element signature="e#0#21#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/miniconda3/envs/fcnd/lib/python3.6/site-packages/udacidrone/frame_utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="10" column="114" selection-start-line="10" selection-start-column="106" selection-end-line="10" selection-end-column="114" />
-          <folding>
-            <element signature="e#49#67#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/motion_planning.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2100">
-          <caret line="25" lean-forward="true" selection-start-line="25" selection-end-line="25" />
+        <state relative-caret-position="298">
+          <caret line="245" column="40" lean-forward="true" selection-start-line="245" selection-start-column="40" selection-end-line="245" selection-end-column="40" />
           <folding>
             <element signature="e#0#15#0" expanded="true" />
-            <element signature="e#7389#7616#0" />
           </folding>
         </state>
       </provider>
