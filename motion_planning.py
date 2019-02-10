@@ -48,7 +48,7 @@ class MotionPlanning(MyDrone):
         self.register_callback(MsgID.LOCAL_POSITION, self.update_d_plot)
 
     def update_ne_plot(self):
-        ne = np.array([self.local_position[0], self.local_position[1]]).reshape(1, -1)
+        ne = np.array([self.local_position[1], self.local_position[0]]).reshape(1, -1)
         self.v.scatter(ne, win=self.ne_plot, update='append')
 
     def update_d_plot(self):
@@ -251,7 +251,7 @@ class MotionPlanning(MyDrone):
 
 
             # Convert path to waypoints
-            waypoints = [[ int(p[0]) + north_offset , int(p[1] + east_offset), TARGET_ALTITUDE, 0] for p in pruned_path]
+            waypoints = [[int(p[0]) + north_offset , int(p[1] + east_offset), TARGET_ALTITUDE, 0] for p in pruned_path]
 
 
         # # TODO: prune path to minimize number of waypoints

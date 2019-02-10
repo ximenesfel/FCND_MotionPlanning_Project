@@ -14,7 +14,7 @@ class MyDrone(Drone):
         assert self.v.check_connection()
 
         # Plot NE
-        ne = np.array([self.local_position[0], self.local_position[1]]).reshape(1, -1)
+        ne = np.array([self.local_position[1], self.local_position[0]]).reshape(1, -1)
         self.ne_plot = self.v.scatter(ne, opts=dict(
             title="Local position (north, east)",
             xlabel='North',
