@@ -7,7 +7,7 @@ import numpy as np
 import csv
 
 from planning_utils import a_star, heuristic, create_grid, create_grid_and_edges, closest_point, a_star_graph, heuristic_graph
-from udacidrone import Drone
+from myDrone import MyDrone
 from udacidrone.connection import MavlinkConnection
 from udacidrone.messaging import MsgID
 from udacidrone.frame_utils import global_to_local, local_to_global
@@ -26,7 +26,7 @@ class States(Enum):
     PLANNING = auto()
 
 
-class MotionPlanning(Drone):
+class MotionPlanning(MyDrone):
 
     def __init__(self, connection):
         super().__init__(connection)
@@ -43,6 +43,19 @@ class MotionPlanning(Drone):
         self.register_callback(MsgID.LOCAL_POSITION, self.local_position_callback)
         self.register_callback(MsgID.LOCAL_VELOCITY, self.velocity_callback)
         self.register_callback(MsgID.STATE, self.state_callback)
+
+        self.register_callback(MsgID.LOCAL_POSITION, self.update_ne_plot)
+        self.register_callback(MsgID.LOCAL_POSITION, self.update_d_plot)
+
+    def update_ne_plot(self):
+        ne = np.array([self.local_position[1], self.local_position[0]]).reshape(1, -1)
+        self.v.scatter(ne, win=self.ne_plot, update='append')
+
+    def update_d_plot(self):
+        d = np.array([self.local_position[2]])
+        # update timestep
+        self.t += 1
+        self.v.line(d, X=np.array([self.t]), win=self.d_plot, update='append')
 
     def local_position_callback(self):
         if self.flight_state == States.TAKEOFF:
@@ -121,7 +134,7 @@ class MotionPlanning(Drone):
         print("Searching for a path ...")
         TARGET_ALTITUDE = 5
         SAFETY_DISTANCE = 5
-        METHOD = "graph_search"
+        METHOD = "grid_search"
 
         self.target_position[2] = TARGET_ALTITUDE
 
@@ -238,7 +251,7 @@ class MotionPlanning(Drone):
 
 
             # Convert path to waypoints
-            waypoints = [[ int(p[0]) + north_offset , int(p[1] + east_offset), TARGET_ALTITUDE, 0] for p in pruned_path]
+            waypoints = [[int(p[0]) + north_offset , int(p[1] + east_offset), TARGET_ALTITUDE, 0] for p in pruned_path]
 
 
         # # TODO: prune path to minimize number of waypoints
