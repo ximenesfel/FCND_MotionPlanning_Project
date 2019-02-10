@@ -35,6 +35,7 @@ class MotionPlanning(MyDrone):
         self.waypoints = []
         self.in_mission = True
         self.check_state = {}
+        self.index = 0
 
         # initial state
         self.flight_state = States.MANUAL
@@ -100,11 +101,50 @@ class MotionPlanning(MyDrone):
         self.takeoff(self.target_position[2])
 
     def waypoint_transition(self):
-        self.flight_state = States.WAYPOINT
-        print("waypoint transition")
-        self.target_position = self.waypoints.pop(0)
-        print('target position', self.target_position)
-        self.cmd_position(self.target_position[0], self.target_position[1], self.target_position[2], self.target_position[3])
+        # self.flight_state = States.WAYPOINT
+        # print("waypoint transition")
+        # self.target_position = self.waypoints.pop(0)
+        # print('target position', self.target_position)
+        # self.cmd_position(self.target_position[0], self.target_position[1], self.target_position[2], self.target_position[3])
+
+        self.previous_position = self.target_position
+
+        if len(self.waypoints):
+
+            print("[INFO] Waypoint transition ...")
+            self.target_position = self.waypoints.pop(0)
+            print('[INFO] Target position: ', self.target_position)
+
+            if len(self.waypoints):
+
+                # Obaining the next two points from waypoint
+
+                if self.index == 0:
+                    self.cmd_position(self.target_position[0], self.target_position[1], self.target_position[2], 0)
+                    self.index += 1
+                    self.flight_state = States.WAYPOINT
+
+                else:
+
+                    waypointActual = self.previous_position
+                    waypointNext = self.target_position
+
+                    self.heading = np.arctan2((waypointNext[1] - waypointActual[1]),
+                                              (waypointNext[0] - waypointActual[0]))
+                    self.cmd_position(self.target_position[0], self.target_position[1], self.target_position[2],
+                                      self.heading)
+
+                    self.index += 1
+
+                    self.flight_state = States.WAYPOINT
+
+            else:
+                waypointActual = self.previous_position
+                waypointNext = self.target_position
+                self.heading = np.arctan2((waypointNext[1] - waypointActual[1]), (waypointNext[0] - waypointActual[0]))
+
+                self.cmd_position(self.target_position[0], self.target_position[1], self.target_position[2],
+                                  self.heading)
 
     def landing_transition(self):
         self.flight_state = States.LANDING
@@ -134,7 +174,7 @@ class MotionPlanning(MyDrone):
         print("Searching for a path ...")
         TARGET_ALTITUDE = 5
         SAFETY_DISTANCE = 5
-        METHOD = "grid_search"
+        METHOD = "graph_search"
 
         self.target_position[2] = TARGET_ALTITUDE
 
