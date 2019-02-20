@@ -4,7 +4,44 @@ import numpy as np
 from scipy.spatial import Voronoi
 from bresenham import bresenham
 import numpy.linalg as LA
+import utm
 
+
+"""
+Functions to convert positions 
+"""
+
+def global_to_local(global_position, global_home):
+    """
+    Convert a global position (lon, lat, up) to a local position (north, east, down) relative to the home position.
+
+    Returns:
+        numpy array of the local position [north, east, down]
+    """
+    (east_home, north_home, _, _) = utm.from_latlon(global_home[1], global_home[0])
+    (east, north, _, _) = utm.from_latlon(global_position[1], global_position[0])
+
+    local_position = np.array([north - north_home, east - east_home, -global_position[2]])
+    return local_position
+
+
+def local_to_global(local_position, global_home):
+    """
+    Convert a local position (north, east, down) relative to the home position to a global position (lon, lat, up)
+
+    Returns:
+        numpy array of the global position [longitude, latitude, altitude]
+    """
+    (east_home, north_home, zone_number, zone_letter) = utm.from_latlon(global_home[1], global_home[0])
+    (lat, lon) = utm.to_latlon(east_home + local_position[1], north_home + local_position[0], zone_number, zone_letter)
+
+    lla = np.array([lon, lat, -local_position[2]])
+    return lla
+
+
+"""
+Functions to create a grid 
+"""
 
 def create_grid(data, drone_altitude, safety_distance):
     """
@@ -65,8 +102,10 @@ def create_grid_and_edges(data, drone_altitude, safety_distance):
 
     # Initialize an empty grid
     grid = np.zeros((north_size, east_size))
+
     # Initialize an empty list for Voronoi points
     points = []
+
     # Populate the grid with obstacles
     for i in range(data.shape[0]):
         north, east, alt, d_north, d_east, d_alt = data[i, :]
@@ -82,11 +121,10 @@ def create_grid_and_edges(data, drone_altitude, safety_distance):
             # add center of obstacles to points list
             points.append([north - north_min, east - east_min])
 
-    # TODO: create a voronoi graph based on
+
     # location of obstacle centres
     graph = Voronoi(points)
 
-    # TODO: check each edge from graph.ridge_vertices for collision
     edges = []
     for v in graph.ridge_vertices:
         p1 = graph.vertices[v[0]]
@@ -96,10 +134,12 @@ def create_grid_and_edges(data, drone_altitude, safety_distance):
         hit = False
 
         for c in cells:
+
             # First check if we're off the map
             if np.amin(c) < 0 or c[0] >= grid.shape[0] or c[1] >= grid.shape[1]:
                 hit = True
                 break
+
             # Next check if we're in collision
             if grid[c[0], c[1]] == 1:
                 hit = True
@@ -115,19 +155,69 @@ def create_grid_and_edges(data, drone_altitude, safety_distance):
 
     return grid, edges
 
-def closest_point(graph, current_point):
-    """
-    Compute the closest point in the `graph`
-    to the `current_point`.
-    """
-    closest_point = None
-    dist = 100000
-    for p in graph.nodes:
-        d = LA.norm(np.array(p) - np.array(current_point))
-        if d < dist:
-            closest_point = p
-            dist = d
-    return closest_point
+
+"""
+Heuristic function
+"""
+
+def heuristic(position, goal_position):
+    return np.linalg.norm(np.array(position) - np.array(goal_position))
+
+
+"""
+A* functions
+"""
+
+def a_star(grid, h, start, goal):
+
+    path = []
+    path_cost = 0
+    queue = PriorityQueue()
+    queue.put((0, start))
+    visited = set(start)
+
+    branch = {}
+    found = False
+
+    while not queue.empty():
+        item = queue.get()
+        current_node = item[1]
+        if current_node == start:
+            current_cost = 0.0
+        else:
+            current_cost = branch[current_node][0]
+
+        if current_node == goal:
+            print('Found a path.')
+            found = True
+            break
+        else:
+            for action in valid_actions(grid, current_node):
+                # get the tuple representation
+                da = action.delta
+                next_node = (current_node[0] + da[0], current_node[1] + da[1])
+                branch_cost = current_cost + action.cost
+                queue_cost = branch_cost + h(next_node, goal)
+
+                if next_node not in visited:
+                    visited.add(next_node)
+                    branch[next_node] = (branch_cost, current_node, action)
+                    queue.put((queue_cost, next_node))
+
+    if found:
+        # retrace steps
+        n = goal
+        path_cost = branch[n][0]
+        path.append(goal)
+        while branch[n][1] != start:
+            path.append(branch[n][1])
+            n = branch[n][1]
+        path.append(branch[n][1])
+    else:
+        print('**********************')
+        print('Failed to find a path!')
+        print('**********************')
+    return path[::-1], path_cost
 
 
 def a_star_graph(graph, h, start, goal):
@@ -180,8 +270,53 @@ def a_star_graph(graph, h, start, goal):
         print('**********************')
     return path[::-1], path_cost
 
-def heuristic_graph(n1, n2):
-    return LA.norm(np.array(n2) - np.array(n1))
+
+"""
+Prune Path functions
+"""
+
+def point(p):
+    return np.array([p[0], p[1], 1.]).reshape(1, -1)
+
+def collinearity_check(p1, p2, p3, epsilon=1e-2):
+    m = np.concatenate((p1, p2, p3), 0)
+    det = np.linalg.det(m)
+    return abs(det) < epsilon
+
+def prune_path(path):
+
+    pruned_path = [p for p in path]
+
+    i = 0
+    while i < len(pruned_path) - 2:
+        p1 = point(pruned_path[i])
+        p2 = point(pruned_path[i + 1])
+        p3 = point(pruned_path[i + 2])
+
+        if collinearity_check(p1, p2, p3):
+            pruned_path.remove(pruned_path[i + 1])
+        else:
+            i += 1
+    return pruned_path
+
+
+"""
+Verify the closest point in graph related to position requested
+"""
+
+def closest_point(graph, current_point):
+    """
+    Compute the closest point in the `graph`
+    to the `current_point`.
+    """
+    closest_point = None
+    dist = 100000
+    for p in graph.nodes:
+        d = LA.norm(np.array(p) - np.array(current_point))
+        if d < dist:
+            closest_point = p
+            dist = d
+    return closest_point
 
 
 # Assume all actions cost the same.
@@ -230,86 +365,22 @@ def valid_actions(grid, current_node):
 
     return valid_actions
 
+# Convert global to NED
+# global_position [long, lat, up]
+# Ned [north, east, down]
 
-def a_star(grid, h, start, goal):
-
-    path = []
-    path_cost = 0
-    queue = PriorityQueue()
-    queue.put((0, start))
-    visited = set(start)
-
-    branch = {}
-    found = False
-    
-    while not queue.empty():
-        item = queue.get()
-        current_node = item[1]
-        if current_node == start:
-            current_cost = 0.0
-        else:              
-            current_cost = branch[current_node][0]
-            
-        if current_node == goal:        
-            print('Found a path.')
-            found = True
-            break
-        else:
-            for action in valid_actions(grid, current_node):
-                # get the tuple representation
-                da = action.delta
-                next_node = (current_node[0] + da[0], current_node[1] + da[1])
-                branch_cost = current_cost + action.cost
-                queue_cost = branch_cost + h(next_node, goal)
-                
-                if next_node not in visited:                
-                    visited.add(next_node)               
-                    branch[next_node] = (branch_cost, current_node, action)
-                    queue.put((queue_cost, next_node))
-             
-    if found:
-        # retrace steps
-        n = goal
-        path_cost = branch[n][0]
-        path.append(goal)
-        while branch[n][1] != start:
-            path.append(branch[n][1])
-            n = branch[n][1]
-        path.append(branch[n][1])
-    else:
-        print('**********************')
-        print('Failed to find a path!')
-        print('**********************') 
-    return path[::-1], path_cost
-
-
-
-def heuristic(position, goal_position):
-    return np.linalg.norm(np.array(position) - np.array(goal_position))
-
-
-def point(p):
-    return np.array([p[0], p[1], 1.]).reshape(1, -1)
-
-def collinearity_check(p1, p2, p3, epsilon=1e-2):
-    m = np.concatenate((p1, p2, p3), 0)
-    det = np.linalg.det(m)
-    return abs(det) < epsilon
-
-
-def prune_path(path):
-
-    pruned_path = [p for p in path]
-
-    i = 0
-    while i < len(pruned_path) - 2:
-        p1 = point(pruned_path[i])
-        p2 = point(pruned_path[i + 1])
-        p3 = point(pruned_path[i + 2])
-
-        if collinearity_check(p1, p2, p3):
-            pruned_path.remove(pruned_path[i + 1])
-        else:
-            i += 1
-    return pruned_path
+# long = -122.39242841
+# lat =  37.79542853
+# up = 0
+#
+# # This information was obtained in Udacity simulator. This is the global_home variable
+# long_home = -122.39745
+# lat_home = 37.79248
+# up_home = 0
+#
+# global_position = (long,lat,up)
+# global_home = (long_home,lat_home,up_home)
+#
+# local_position = global_to_local(global_position, global_home)
+# print(local_position)
 
