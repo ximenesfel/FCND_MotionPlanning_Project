@@ -10,7 +10,7 @@ The main information about the project can be accessed [here](https://github.com
 
 ###  Writeup
 
-A writeup explaining the code can be accessed here
+A writeup explaining the code can be accessed [here](https://github.com/ximenesfel/FCND_MotionPlanning_Project/blob/master/Writeup.md).
 
 
 
